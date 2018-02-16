@@ -6,4 +6,4 @@ authors = ["snsvrno <snsvrno@tuta.io>"]
 [dependencies]
 reqwest = "0.8.5"
 
-lpsettings = { path = "../../tools/lpsettings" }
+lpsettings = { git = "https://gitlab.com/Snsvrno/lpsettings", tag = "0.1.2" }
