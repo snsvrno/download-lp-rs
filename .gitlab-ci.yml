@@ -7,7 +7,7 @@ pages:
   only:
     - master
   script:
-    - cargo doc
+    - cargo doc --no-deps
     - rm -rf public
     - mkdir public
     - cp -R target/doc/* public
