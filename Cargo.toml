@@ -1,9 +1,11 @@
 [package]
 name = "download"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["snsvrno <snsvrno@tuta.io>"]
 
 [dependencies]
 reqwest = "0.8.5"
+ansi_term = "0.10.2"
 
-lpsettings = { git = "https://gitlab.com/Snsvrno/lpsettings", tag = "0.1.2" }
+output = { git = "https://gitlab.com/Snsvrno/lpsettings", tag = "0.1.4" }
+output = { git = "https://gitlab.com/Snsvrno/output-lp-rs", tag = "0.1.0" }
