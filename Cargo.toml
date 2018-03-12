@@ -7,5 +7,5 @@ authors = ["snsvrno <snsvrno@tuta.io>"]
 reqwest = "0.8.5"
 ansi_term = "0.10.2"
 
-lpsettings = { git = "https://gitlab.com/Snsvrno/lpsettings", tag = "0.1.4" }
-output = { git = "https://gitlab.com/Snsvrno/output-lp-rs", tag = "0.1.0" }
+lpsettings = { git = "https://github.com/Snsvrno/lpsettings-rs", tag = "0.1.4" }
+output = { git = "https://github.com/Snsvrno/output-lp-rs", tag = "0.1.0" }
