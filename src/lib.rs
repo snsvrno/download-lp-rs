@@ -17,7 +17,7 @@ pub enum Error {
 pub fn download(link : String) -> Result<(PathBuf,usize),Error> {
   //! downloads the file to the lpsettings defined cache and returns that path
 
-  output_println!("Downloading {}",Blue.paint(&link));
+  output_println!("Downloading {}",Blue.paint(link.to_string()));
 
   let (file,ext) = split_name_and_extension(&link);
   
