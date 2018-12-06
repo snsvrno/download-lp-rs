@@ -5,6 +5,8 @@ authors = ["snsvrno <snsvrno@tuta.io>"]
 
 [dependencies]
 download-lp = { path = "../" }
+log = "0.4"
+pretty_env_logger = "0.3"
 
 [[bin]]
 name = "download"

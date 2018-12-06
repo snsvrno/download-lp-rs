@@ -10,3 +10,5 @@ reqwest = "0.9"
 
 failure = "0.1"
 log = "0.4"
+
+indicatif = "0.10"
