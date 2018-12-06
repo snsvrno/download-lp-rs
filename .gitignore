@@ -1,6 +1,6 @@
 # builds and compiled stuff
-/target/
-/releases/
+target/
+releases/
 
 Cargo.lock
 **/*.rs.bk

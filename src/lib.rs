@@ -1,94 +1,54 @@
-extern crate lpsettings;
 extern crate reqwest;
-extern crate ansi_term; use ansi_term::Colour::{Yellow,Blue};
-#[macro_use]
-extern crate output;
+extern crate failure; use failure::Error;
+#[macro_use] extern crate log;
 
-use std::fs::{File,create_dir_all};
-use std::io;
+use std::path::{ Path, PathBuf };
+use std::fs;
 use std::io::prelude::*;
-use std::path::PathBuf;
 
-pub enum Error {
-  Reqwest(reqwest::Error),
-  Io(io::Error)
-}
+mod tools;
 
-pub fn download(link : String) -> Result<(PathBuf,usize),Error> {
-  //! downloads the file to the lpsettings defined cache and returns that path
+pub fn download<P:AsRef<Path>>(link : &str, path : P) -> Result<usize,Error>
+    where std::path::PathBuf: std::convert::From<P>, P : std::fmt::Display,
+{
+    //! No frills downloader.
+    //! 
+    //! Pick a link and a path and it will download to that path. Designed to be 
+    //! a super simple way to quickly download a file.AsMut
+    //! 
+    //! Uses [log](https://crates.io/crates/log) so some output is available for 
+    //! debugging purposes. 
 
-  output_println!("Downloading {}",Blue.paint(link.to_string()));
+    info!("Downloading '{}' to path '{}'",link,path);
 
-  let (file,ext) = split_name_and_extension(&link);
-  
-  // builds the download path
-  let mut download_path = if let Ok(settings_path) = lpsettings::get_settings_folder() { settings_path } else { PathBuf::from(".") };
-  download_path.push(lpsettings::get_value_or("cache.path","cache"));
-  if !download_path.exists() { 
-    output_debug!("{} does not exists!",download_path.display().to_string());
-    match create_dir_all(&download_path) {
-      Ok(_) => { output_debug!("Created folder"); }
-      Err(error) => { output_debug!("Could not create folder: {}",Yellow.paint(error.to_string()))}
+    let (file,ext) = tools::split_name_and_extension(link);
+
+    let mut download_path : PathBuf = PathBuf::from(path);
+    // checks if the download path exists, and tries to create the folders if it doesn't
+    if !download_path.exists() {
+        warn!("Download path of '{:?}' doesn't exist, attempting to create it.",&download_path);
+        fs::create_dir_all(&download_path)?;
+        info!("Folders created successfully");
     }
-  }
-  download_path.push(format!("{}.{}",file,ext));
-  output_debug!("Download path is {}",&download_path.display().to_string());
 
-  if download_path.exists() {
-    output_println!("{} already exist, skipping download.",Blue.paint(download_path.display().to_string()));
-    return Ok((download_path,0));
-  }
+    download_path.push(format!("{}.{}",file,ext));
 
-  // downloads the data
-  let mut buffer : Vec<u8> = Vec::new();
-  match reqwest::get(&link) {
-    Err(error) => { 
-      output_error!("Couldn't get request: {}",Yellow.paint(error.to_string()));
-      return Err(Error::Reqwest(error)); }
-    Ok(mut link_data) => { 
-      match link_data.copy_to(&mut buffer) {
-        Err(error) => { 
-          output_error!("Couldn't copy response to buffer: { }",Yellow.paint(error.to_string()));
-          return Err(Error::Reqwest(error)); }
-        Ok(_) => { output_println!("{} finished downloading.",&link); }
-      }
+    if download_path.exists() {
+        info!("File already seems to exist, skipping download.");
+        return Ok(0);
     }
-  }
 
-  match File::create(&download_path) {
-    Err(error) => { return Err(Error::Io(error)); }
-    Ok(mut download_file) => { 
-      match download_file.write(&buffer) {
-        Err(error) => { return Err(Error::Io(error)); }
-        Ok(size) => { return Ok((download_path,size)); }
-      }
-    }
-  }
+    // does the actual downloading.
+    let mut buffer : Vec<u8> = Vec::new();
 
-}
+    let mut response = reqwest::get(link)?;
+    response.copy_to(&mut buffer)?;
 
-fn split_name_and_extension<'a>(file : &'a str) -> (&'a str,&'a str) {
-  //! splits a url into the filename and the path
+    // now writes it to a file
+    let mut disk_file = fs::File::create(&download_path)?;
+    let size = disk_file.write(&buffer)?;
 
-  let extension : &'a str = if let Some (ext) = file.split(".").last() { 
-    ext 
-  } else { "" };
-
-  let filename : &'a str = if let Some (filename) = file.split("/").last() { 
-    &filename[..(filename.len()-extension.len()-1)]
-  } else { file };
-
-  (filename,extension)
-}
-
-///////////////////////////////////////
-
-mod test {
-  #[test]
-  fn split_name_and_extension() {
-    let (file,ext) = super::split_name_and_extension("what/is/this/file.name");
-    assert_eq!(file,"file");
-    assert_eq!(ext,"name");
-  }
-
+    info!("Download complete!");
+    
+    Ok(size)
 }

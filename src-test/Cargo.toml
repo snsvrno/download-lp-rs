@@ -1,0 +1,11 @@
+[package]
+name = "download-lp-test"
+version = "0.0.1"
+authors = ["snsvrno <snsvrno@tuta.io>"]
+
+[dependencies]
+download-lp = { path = "../" }
+
+[[bin]]
+name = "download"
+path = "main.rs"
