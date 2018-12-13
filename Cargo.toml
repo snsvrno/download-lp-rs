@@ -3,6 +3,13 @@ name = "download-lp"
 version = "0.2.0"
 authors = ["snsvrno <snsvrno@tuta.io>"]
 
+license = "MIT"
+description = "a library for easy downloading of files."
+repository = "https://github.com/snsvrno/download-lp-rs"
+readme = "README.md"
+keywords = ["downloading","download"]
+categories = ["web-programming::http-client"]
+
 exclude = [ "src-test" ]
 
 [dependencies]

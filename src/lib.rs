@@ -9,7 +9,7 @@ use std::io::prelude::*;
 
 mod tools;
 
-pub fn download<P:AsRef<Path>>(link : &str, path : P) -> Result<usize,Error>
+pub fn download<P:AsRef<Path>>(link : &str, path : P) -> Result<(String,usize),Error>
     where std::path::PathBuf: std::convert::From<P>, P : std::fmt::Display,
 {
     //! No frills downloader.
@@ -36,7 +36,7 @@ pub fn download<P:AsRef<Path>>(link : &str, path : P) -> Result<usize,Error>
 
     if download_path.exists() {
         info!("File already seems to exist, skipping download.");
-        return Ok(0);
+        return Ok((format!("{}.{}",file,ext),0));
     }
 
      let client = reqwest::Client::new();
@@ -79,7 +79,7 @@ pub fn download<P:AsRef<Path>>(link : &str, path : P) -> Result<usize,Error>
 
         progress.finish_with_message(&format!("{}.{} : Done",file,ext));
 
-        Ok(size_disk)
+        Ok((format!("{}.{}",file,ext),size_disk))
 
     } else {
         Err(format_err!("No response, are you connected to the internet?"))
